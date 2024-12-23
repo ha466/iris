@@ -14,8 +14,7 @@ To run this project locally:
 
 1. Clone the repository:
    \`\`\`
-   git clone https://github.com/your-username/iris-ai-intro.git
-   cd iris-ai-intro
+   git clone https://github.com/ha466/iris.git
    \`\`\`
 
 2. Install dependencies:
