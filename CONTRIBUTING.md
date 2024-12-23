@@ -26,9 +26,9 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project.
 
-## Report bugs using Github's [issues](https://github.com/your-username/iris-ai-intro/issues)
+## Report bugs using Github's [issues](https://github.com/ha466/iris/issues)
 
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/your-username/iris-ai-intro/issues/new); it's that easy!
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue]([https://github.com/your-username/iris-ai-intro/issues](https://github.com/ha466/iris/issues/new); it's that easy!
 
 ## License
 
