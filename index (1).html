@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRIS - AI Medical Care Assistant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #00a86b;
+            --secondary-color: #004d31;
+            --text-color: #e0e0e0;
+            --bg-color: #121212;
+            --card-bg: rgba(30, 30, 30, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(0, 168, 107, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #000000, var(--secondary-color));
+            color: #ffffff;
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+            background: linear-gradient(90deg, #ffffff, var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 168, 107, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out 1s both;
+            box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 168, 107, 0.4);
+        }
+
+        .features, .how-it-works, .about, .capabilities {
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .features, .capabilities {
+            background: linear-gradient(135deg, rgba(0, 77, 49, 0.1), rgba(0, 168, 107, 0.1));
+        }
+
+        .how-it-works {
+            background: linear-gradient(135deg, rgba(18, 18, 18, 0.8), rgba(30, 30, 30, 0.8));
+        }
+
+        .about {
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            color: #ffffff;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 168, 107, 0.3);
+        }
+
+        .feature-grid, .about-grid, .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item, .about-item, .capabilities-item {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-item.animate, .about-item.animate, .capabilities-item.animate {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .feature-item:hover, .about-item:hover, .capabilities-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 168, 107, 0.2);
+        }
+
+        .feature-icon, .about-icon, .capabilities-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+            text-shadow: 0 0 15px rgba(0, 168, 107, 0.5);
+        }
+
+        .feature-item:hover .feature-icon,
+        .about-item:hover .about-icon,
+        .capabilities-item:hover .capabilities-icon {
+            transform: scale(1.1);
+        }
+
+        .feature-title, .about-title, .capabilities-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-description, .about-item p, .capabilities-description {
+            color: var(--text-color);
+        }
+
+        .workflow {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .workflow-step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 1rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .workflow-step.animate {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 168, 107, 0.5);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #ffffff;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            line-height: 40px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 168, 107, 0.3);
+        }
+
+        .workflow-step:hover .step-number {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 168, 107, 0.5);
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .step-description {
+            color: var(--text-color);
+        }
+
+        footer {
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            color: #ffffff;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Particle animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-30px) translateX(30px);
+            }
+            50% {
+                transform: translateY(-60px) translateX(-30px);
+            }
+            75% {
+                transform: translateY(-30px) translateX(60px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.25rem;
+            }
+
+            .workflow-step:not(:last-child)::after {
+                content: '↓';
+                top: auto;
+                bottom: -20px;
+                right: 50%;
+                transform: translateX(50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles"></div>
+
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">IRIS</a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#capabilities">Capabilities</a>
+                <a href="#about">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Welcome to IRIS</h1>
+                <p class="subtitle">Your AI-powered Medical Care Assistant</p>
+                <a href="#features" class="cta-button">Explore Features</a>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🧠</div>
+                        <h3 class="feature-title">AI-Powered</h3>
+                        <p class="feature-description">Utilizes advanced Llama 3.3 model for accurate medical information and diagnosis assistance</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎙️</div>
+                        <h3 class="feature-title">Voice Interaction</h3>
+                        <p class="feature-description">Speak your queries with Whisper-large speech recognition for hands-free operation</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔊</div>
+                        <h3 class="feature-title">Text-to-Speech</h3>
+                        <p class="feature-description">Listen to responses with Tacotron 2 voice synthesis for accessibility and convenience</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <h3 class="feature-title">Secure</h3>
+                        <p class="feature-description">Your data is protected with state-of-the-art encryption and complies with HIPAA regulations</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="how-it-works">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="workflow">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">User Input</h3>
+                        <p class="step-description">Speak or type your medical query or symptoms</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">AI Processing</h3>
+                        <p class="step-description">IRIS analyzes your query using the Llama 3.3 model and medical databases</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Generate Response</h3>
+                        <p class="step-description">Accurate medical information and potential diagnoses are compiled</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title">Deliver Results</h3>
+                        <p class="step-description">Receive your answer via text or speech, with options for follow-up questions</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="capabilities" class="capabilities">
+            <div class="container">
+                <h2>IRIS Capabilities</h2>
+                <div class="capabilities-grid">
+                    <div class="capabilities-item">
+                        <div class="capabilities-icon">📊</div>
+                        <h3 class="capabilities-title">Symptom Analysis</h3>
+                        <p class="capabilities-description">IRIS can analyze your symptoms and provide potential diagnoses based on the latest medical research</p>
+                    </div>
+                    <div class="capabilities-item">
+                        <div class="capabilities-icon">💊</div>
+                        <h3 class="capabilities-title">Medication Information</h3>
+                        <p class="capabilities-description">Get detailed information about medications, including dosage, side effects, and potential interactions</p>
+                    </div>
+                    <div class="capabilities-item">
+                        <div class="capabilities-icon">🏥</div>
+                        <h3 class="capabilities-title">Treatment Recommendations</h3>
+                        <p class="capabilities-description">Receive evidence-based treatment suggestions for various medical conditions</p>
+                    </div>
+                    <div class="capabilities-item">
+                        <div class="capabilities-icon">🚑</div>
+                        <h3 class="capabilities-title">Emergency Guidance</h3>
+                        <p class="capabilities-description">Get immediate advice for emergency situations and directions to the nearest medical facilities</p>
+                    </div>
+                    <div class="capabilities-item">
+                        <div class="capabilities-icon">📅</div>
+                        <h3 class="capabilities-title">Appointment Scheduling</h3>
+                        <p class="capabilities-description">IRIS can help you schedule appointments with healthcare providers based on your symptoms and location</p>
+                    </div>
+                    <div class="capabilities-item">
+                        <div class="capabilities-icon">📚</div>
+                        <h3 class="capabilities-title">Medical Education</h3>
+                        <p class="capabilities-description">Access a vast database of medical information to learn more about various health topics</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2>About IRIS</h2>
+                <div class="about-grid">
+                    <div class="about-item">
+                        <div class="about-icon">🩺</div>
+                        <h3 class="about-title">Medical Expertise</h3>
+                        <p>Trained on vast medical databases and continuously updated with the latest research for accurate information</p>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-icon">🧬</div>
+                        <h3 class="about-title">Cutting-edge AI</h3>
+                        <p>Powered by the latest Llama 3.3 language model, ensuring advanced natural language understanding and generation</p>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-icon">💊</div>
+                        <h3 class="about-title">Personalized Care</h3>
+                        <p>Tailored responses based on your unique health profile and medical history for more accurate assistance</p>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-icon">❤️</div>
+                        <h3 class="about-title">24/7 Availability</h3>
+                        <p>Access medical assistance anytime, anywhere, providing peace of mind and immediate support when you need it most</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 IRIS AI Medical Care. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for animating sections
+        const animateSections = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(animateSections, {
+            root: null,
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.feature-item, .workflow-step, .about-item, .capabilities-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Scroll event for header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Create particles
+        const particlesContainer = document.querySelector('.particles');
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.width = `${Math.random() * 5 + 1}px`;
+            particle.style.height = particle.style.width;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            particle.style.animationDelay = `${Math.random() * 15}s`;
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
