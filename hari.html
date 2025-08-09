@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Voice Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a0a0a;
+        }
+        .studio-glow {
+             box-shadow: 0 0 15px rgba(217, 70, 239, 0.3), 0 0 5px rgba(217, 70, 239, 0.2);
+        }
+        .title-glow { text-shadow: 0 0 8px rgba(217, 70, 239, 0.7); }
+        .btn-primary {
+            background-color: #c026d3; /* fuchsia-600 */
+            color: white;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #d946ef; /* fuchsia-500 */
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.5);
+        }
+        .btn-secondary {
+            background-color: #3f3f46; /* zinc-700 */
+            color: #d4d4d8; /* zinc-300 */
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #52525b; /* zinc-600 */
+            color: white;
+        }
+        .btn-gemini {
+            background-color: transparent;
+            border: 1px solid #c026d3;
+            color: #c026d3;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-gemini:hover {
+            background-color: #c026d3;
+            color: white;
+            box-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid #3f3f46;
+            border-top-color: #d946ef;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .history-item, .modal-content { animation: fadeIn 0.3s ease-out forwards; }
+        input[type=range] {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+            background: #3f3f46; border-radius: 3px; outline: none; transition: background 0.2s;
+        }
+        input[type=range]:hover { background: #52525b; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 20px; height: 20px;
+            background: #d946ef; cursor: pointer; border-radius: 50%;
+            border: 3px solid #18181b; transition: transform 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        input[type=range]::-moz-range-thumb {
+            width: 20px; height: 20px; background: #d946ef; cursor: pointer;
+            border-radius: 50%; border: 3px solid #18181b;
+        }
+    </style>
+</head>
+<body class="text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 rounded-2xl studio-glow p-6 md:p-8">
+        <header class="flex items-center justify-between mb-8">
+            <h1 class="text-4xl font-bold text-fuchsia-400 title-glow flex items-center">
+                <i class="fas fa-wave-square mr-4"></i>
+                Iris Voice Studio
+            </h1>
+        </header>
+
+        <main>
+            <!-- Input Section -->
+            <div class="mb-6 relative">
+                <label id="input-label" for="text-input" class="block text-lg font-medium mb-2 text-gray-300">Input Text</label>
+                <textarea id="text-input" rows="5" class="w-full p-4 bg-zinc-800 border-2 border-zinc-700 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 transition resize-none placeholder-zinc-500" placeholder="Enter the text to synthesize..."></textarea>
+                <button id="polish-btn" class="absolute bottom-3 right-3 btn-gemini text-xs font-semibold py-1 px-2 rounded-md">✨ Polish with AI</button>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="mb-6 p-4 bg-black/30 rounded-lg border border-zinc-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-200">Voice Parameters</h3>
+                    <button id="mood-btn" class="btn-gemini text-sm font-semibold py-1 px-3 rounded-md">✨ Analyze Mood</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                    <div>
+                        <label for="temperature-slider" class="flex justify-between text-sm font-medium text-gray-400">Expressiveness <span id="temperature-value" class="text-fuchsia-400 font-semibold">0.75</span></label>
+                        <input id="temperature-slider" type="range" min="0.1" max="1.0" step="0.05" value="0.75" class="w-full mt-2">
+                    </div>
+                    <div>
+                        <label for="guidance-slider" class="flex justify-between text-sm font-medium text-gray-400">Clarity <span id="guidance-value" class="text-fuchsia-400 font-semibold">5.0</span></label>
+                        <input id="guidance-slider" type="range" min="1.0" max="10.0" step="0.5" value="5.0" class="w-full mt-2">
+                    </div>
+                    <div>
+                        <label for="pace-slider" class="flex justify-between text-sm font-medium text-gray-400">Pace <span id="pace-value" class="text-fuchsia-400 font-semibold">1.0</span></label>
+                        <input id="pace-slider" type="range" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full mt-2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="flex flex-wrap items-center gap-4 mb-6">
+                <button id="process-btn" class="flex-grow sm:flex-grow-0 btn-primary font-bold py-3 px-6 rounded-lg"><i class="fas fa-bolt mr-2"></i> Synthesize</button>
+                <button id="ai-toggle-btn" class="flex-grow sm:flex-grow-0 btn-secondary font-bold py-3 px-6 rounded-lg"><i class="fas fa-robot mr-2"></i> AI Writer</button>
+                <label for="audio-prompt" class="cursor-pointer btn-secondary font-bold py-3 px-6 rounded-lg inline-block"><i class="fas fa-microphone-lines mr-2"></i> Upload for Voice Clone</label>
+                <input type="file" id="audio-prompt" accept="audio/wav" class="hidden">
+                <span id="file-name" class="ml-3 text-zinc-400 text-sm">No file chosen</span>
+            </div>
+
+            <!-- Output Section -->
+            <div id="output-section" class="min-h-[100px] bg-black/30 rounded-lg p-4 flex-col items-center justify-center hidden">
+                 <div id="loader" class="loader hidden"></div>
+                 <div id="player-container" class="w-full"></div>
+                 <p id="status-message" class="text-gray-300 mt-2"></p>
+                 <button id="scene-btn" class="btn-gemini font-bold py-2 px-4 rounded-lg mt-4 hidden">✨ Suggest Scene</button>
+            </div>
+
+            <!-- History Section -->
+            <div class="mt-8">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-200">Generation History</h2>
+                <div id="history-list" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                    <p class="text-zinc-500">Your generated audio files will appear here.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for AI Results -->
+    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div id="modal-content" class="modal-content bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-lg w-full relative">
+            <button id="modal-close-btn" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const BACKEND_URL = 'http://127.0.0.1:5000';
+
+        // --- Element Selectors ---
+        const processBtn = document.getElementById('process-btn');
+        const aiToggleBtn = document.getElementById('ai-toggle-btn');
+        const textInput = document.getElementById('text-input');
+        const inputLabel = document.getElementById('input-label');
+        const audioPromptInput = document.getElementById('audio-prompt');
+        const fileNameSpan = document.getElementById('file-name');
+        const outputSection = document.getElementById('output-section');
+        const loader = document.getElementById('loader');
+        const playerContainer = document.getElementById('player-container');
+        const statusMessage = document.getElementById('status-message');
+        const historyList = document.getElementById('history-list');
+        const tempSlider = document.getElementById('temperature-slider');
+        const tempValue = document.getElementById('temperature-value');
+        const guidanceSlider = document.getElementById('guidance-slider');
+        const guidanceValue = document.getElementById('guidance-value');
+        const paceSlider = document.getElementById('pace-slider');
+        const paceValue = document.getElementById('pace-value');
+        const polishBtn = document.getElementById('polish-btn');
+        const moodBtn = document.getElementById('mood-btn');
+        const sceneBtn = document.getElementById('scene-btn');
+        const modal = document.getElementById('modal');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        let isAiMode = false;
+        let historyCount = 0;
+
+        // --- Event Listeners ---
+        aiToggleBtn.addEventListener('click', () => {
+            isAiMode = !isAiMode;
+            if (isAiMode) {
+                aiToggleBtn.innerHTML = '<i class="fas fa-keyboard mr-2"></i> Manual Input';
+                aiToggleBtn.classList.remove('btn-secondary'); aiToggleBtn.classList.add('btn-primary');
+                inputLabel.textContent = 'AI Writing Prompt';
+                textInput.placeholder = 'e.g., "A short ad read for a new coffee brand."';
+                processBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> Generate Text';
+            } else {
+                aiToggleBtn.innerHTML = '<i class="fas fa-robot mr-2"></i> AI Writer';
+                aiToggleBtn.classList.add('btn-secondary'); aiToggleBtn.classList.remove('btn-primary');
+                inputLabel.textContent = 'Input Text';
+                textInput.placeholder = 'Enter the text to synthesize...';
+                processBtn.innerHTML = '<i class="fas fa-bolt mr-2"></i> Synthesize';
+            }
+        });
+
+        audioPromptInput.addEventListener('change', () => {
+            fileNameSpan.textContent = audioPromptInput.files.length > 0 ? audioPromptInput.files[0].name : 'No file chosen';
+        });
+
+        processBtn.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            if (!text) { showStatus('Please enter some text or a prompt.', 'error'); return; }
+            isAiMode ? generateTextWithAi(text) : generateTts(text);
+        });
+        
+        tempSlider.addEventListener('input', () => tempValue.textContent = parseFloat(tempSlider.value).toFixed(2));
+        guidanceSlider.addEventListener('input', () => guidanceValue.textContent = parseFloat(guidanceSlider.value).toFixed(1));
+        paceSlider.addEventListener('input', () => paceValue.textContent = parseFloat(paceSlider.value).toFixed(1));
+
+        polishBtn.addEventListener('click', () => polishText(textInput.value));
+        moodBtn.addEventListener('click', () => analyzeMood(textInput.value));
+        sceneBtn.addEventListener('click', () => suggestScene(textInput.value));
+        modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.add('hidden'); });
+
+        // --- Core Functions (TTS & AI Writer) ---
+        async function generateTts(text) {
+            showLoading(true, 'Synthesizing voice...');
+            sceneBtn.classList.add('hidden');
+            const formData = new FormData();
+            formData.append('text', text);
+            formData.append('temperature', tempSlider.value);
+            formData.append('cfg_scale', guidanceSlider.value);
+            formData.append('pace', paceSlider.value);
+            if (audioPromptInput.files[0]) formData.append('reference_audio', audioPromptInput.files[0]);
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/generate_tts`, { method: 'POST', body: formData });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Server error');
+                }
+                const data = await response.json();
+                displayAudio(data.file_url, data.file_name);
+                addToHistory(data.file_url, data.file_name, text);
+                showStatus('Audio synthesized successfully!', 'success');
+                sceneBtn.classList.remove('hidden');
+            } catch (error) {
+                console.error('TTS Error:', error);
+                showStatus(`Error: Could not connect to the local Python server. Is it running?`, 'error');
+                playerContainer.innerHTML = '';
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function generateTextWithAi(prompt) {
+            showLoading(true, 'AI is composing...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/generate_text`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+                if (!response.ok) throw new Error('Failed to get response from server.');
+                const data = await response.json();
+                
+                if (data.text) {
+                    textInput.value = data.text;
+                    aiToggleBtn.click(); 
+                    showStatus('AI text generated. Click "Synthesize" to create audio.', 'success');
+                } else { throw new Error(data.error || "Invalid response from AI."); }
+            } catch (error) {
+                console.error('AI Generation Error:', error);
+                showStatus('Failed to generate text with AI.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // --- Gemini Feature Functions (Calling Backend) ---
+        async function polishText(text) {
+            if (!text.trim()) { showStatus('Please enter some text to polish.', 'error'); return; }
+            showLoading(true, 'Polishing text with AI...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/polish_text`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                if (!response.ok) throw new Error('Server polishing error.');
+                const data = await response.json();
+                if (data.text) {
+                    textInput.value = data.text.trim();
+                    showStatus('Text polished successfully!', 'success');
+                } else { throw new Error(data.error || "Failed to polish text."); }
+            } catch (error) {
+                console.error('Polish Text Error:', error);
+                showStatus(error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function analyzeMood(text) {
+            if (!text.trim()) { showStatus('Please enter text to analyze its mood.', 'error'); return; }
+            showLoading(true, 'Analyzing mood...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/analyze_mood`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                if (!response.ok) throw new Error('Server mood analysis error.');
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+                
+                modalBody.innerHTML = `
+                    <h3 class="text-2xl font-bold text-fuchsia-400 mb-4">Mood Analysis</h3>
+                    <p class="text-lg mb-2">Detected Mood: <span class="font-semibold text-white">${data.mood}</span></p>
+                    <p class="text-gray-300 mb-4">Based on this, we suggest the following settings:</p>
+                    <ul class="list-disc list-inside mb-6 text-gray-300 space-y-2">
+                        <li>Expressiveness: <span class="font-semibold text-white">${data.suggested_expressiveness}</span></li>
+                        <li>Pace: <span class="font-semibold text-white">${data.suggested_pace}</span></li>
+                    </ul>
+                    <button id="apply-settings-btn" class="btn-primary font-bold py-2 px-4 rounded-lg w-full">Apply Suggested Settings</button>
+                `;
+                modal.classList.remove('hidden');
+
+                document.getElementById('apply-settings-btn').addEventListener('click', () => {
+                    tempSlider.value = data.suggested_expressiveness;
+                    paceSlider.value = data.suggested_pace;
+                    tempValue.textContent = parseFloat(tempSlider.value).toFixed(2);
+                    paceValue.textContent = parseFloat(paceSlider.value).toFixed(1);
+                    modal.classList.add('hidden');
+                    showStatus('Mood settings applied!', 'success');
+                });
+
+            } catch (error) {
+                console.error('Mood Analysis Error:', error);
+                showStatus('Failed to analyze mood.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function suggestScene(text) {
+            if (!text.trim()) { return; }
+            showLoading(true, 'Imagining a scene...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/suggest_scene`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                if (!response.ok) throw new Error('Server scene suggestion error.');
+                const data = await response.json();
+                if(data.error) throw new Error(data.error);
+                
+                modalBody.innerHTML = `
+                    <h3 class="text-2xl font-bold text-fuchsia-400 mb-4">✨ Suggested Scene</h3>
+                    <p class="text-gray-300 whitespace-pre-wrap">${data.text}</p>
+                `;
+                modal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Scene Suggestion Error:', error);
+                showStatus('Failed to suggest a scene.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // --- UI Helper Functions ---
+        function showLoading(isLoading, message = '') {
+            outputSection.classList.remove('hidden');
+            if (isLoading) {
+                loader.classList.remove('hidden');
+                statusMessage.textContent = message;
+                if (!message.includes('Synthesizing')) playerContainer.innerHTML = '';
+                processBtn.disabled = true;
+            } else {
+                loader.classList.add('hidden');
+                if (statusMessage.textContent === message) statusMessage.textContent = '';
+                processBtn.disabled = false;
+            }
+        }
+        function showStatus(message, type = 'info') {
+            outputSection.classList.remove('hidden');
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message mt-2';
+            if (type === 'error') statusMessage.classList.add('text-red-400');
+            else if (type === 'success') statusMessage.classList.add('text-green-400');
+            else statusMessage.classList.add('text-gray-300');
+        }
+        function displayAudio(fileUrl, fileName) {
+            playerContainer.innerHTML = `
+                <div class="w-full flex flex-col items-center gap-4">
+                    <audio controls autoplay class="w-full" src="${fileUrl}"></audio>
+                    <a href="${fileUrl}" download="${fileName}" class="bg-zinc-700 hover:bg-zinc-600 text-gray-200 font-bold py-2 px-5 rounded-lg transition-colors">
+                        <i class="fas fa-download mr-2"></i> Download
+                    </a>
+                </div>
+            `;
+        }
+        function addToHistory(fileUrl, fileName, originalText) {
+            if (historyCount === 0) historyList.innerHTML = '';
+            historyCount++;
+            const shortText = originalText.length > 60 ? originalText.substring(0, 60) + '...' : originalText;
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item bg-zinc-800/50 p-3 rounded-lg flex justify-between items-center border-l-4 border-fuchsia-500';
+            historyItem.style.opacity = '0';
+            historyItem.innerHTML = `
+                <div>
+                    <p class="font-semibold text-gray-200">${fileName}</p>
+                    <p class="text-sm text-zinc-400 italic">"${shortText}"</p>
+                </div>
+                <button class="play-history-btn bg-fuchsia-600 hover:bg-fuchsia-500 w-10 h-10 rounded-full flex items-center justify-center transition-all transform hover:scale-110" data-url="${fileUrl}">
+                    <i class="fas fa-play text-white"></i>
+                </button>
+            `;
+            historyList.prepend(historyItem);
+            historyItem.querySelector('.play-history-btn').addEventListener('click', (e) => {
+                const url = e.currentTarget.getAttribute('data-url');
+                displayAudio(url, fileName);
+                outputSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+    </script>
+</body>
+</html>
